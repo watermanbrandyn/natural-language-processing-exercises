@@ -5,10 +5,44 @@ import pandas as pd
 
 ## Blog Articles
 
+def get_blog_article_urls():
+    '''
+    This function makes a request to the Codeup blog site and gathers the urls by analyzing the returned html text. Returns the list of urls.
+    '''
+    headers = {User-Agent: 'Codeup Data Science'}
+    response = requests.get('https://codeup.com/blog/', headers=headers)
+    soup = BeautifulSoup(response.text)
+    # Getting the url by the a class subcategory 'more-link'
+    urls = [a.attrs['href'] for a in soup.select('a.more-link')]
+    return urls
 
 
+def parse_blog_article(soup):
+    '''
+    This function parses each individual article to gather the title, content, and published date.
+    '''
+    return {
+        'title': soup.select_one('h1.entry-title').text,
+        'content': soup.select_one('.entry-content').text.strip(),
+        'published': soup.select_one('.published').text
+    }
 
 
+def get_blog_articles():
+    '''
+    This function returns a dataframe of the articles from the Codeup blog site. 
+    Inside the function the list of urls is used to gather the article's html and then parse it for title, content, and date published.
+    '''
+    urls = get_blog_article_urls()
+    articles = []
+
+    for url in urls:
+        response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(response.text)
+        articles.append(parse_blog_article(soup))
+
+    df = pd.DataFrame(articles)
+    return df
 
 
 ## Inshort News articles
