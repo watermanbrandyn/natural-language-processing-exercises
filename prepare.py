@@ -98,15 +98,15 @@ def prep_data(df, extra_words = [], exclude_words = []):
     Returns a dataframe when clean, stemmed, and lemmatized columns along with the title and original text. Has option to include extra or exclude words 
     for stopwords.
     '''
-    # Cleaned text column
-    df['clean'] = df.content.apply(basic_clean).apply(tokenize).apply(remove_stopwords, extra_words=extra_words, exclude_words=exclude_words)
-    # Stemmed text column
-    df['stemmed'] = df.content.apply(basic_clean).apply(tokenize).apply(stem).apply(remove_stopwords, extra_words=extra_words, exclude_words=exclude_words)
-    # Lemmatized text column
-    df['lemmatized'] = df.content.apply(basic_clean).apply(tokenize).apply(lemmatize).apply(remove_stopwords, extra_words=extra_words, exclude_words=exclude_words)
     # Renaming the content column as original
     df = df.rename(columns={'content': 'original'})
-    # Return the df with specified columns
-    return df[['title', 'original', 'clean', 'stemmed', 'lemmatized']]
+    # Cleaned text column
+    df['clean'] = (df.original.apply(basic_clean).apply(tokenize).apply(remove_stopwords, extra_words=extra_words, exclude_words=exclude_words))
+    # Stemmed text column
+    df['stemmed'] = (df.original.apply(basic_clean).apply(tokenize).apply(stem).apply(remove_stopwords, extra_words=extra_words, exclude_words=exclude_words))
+    # Lemmatized text column
+    df['lemmatized'] = (df.original.apply(basic_clean).apply(tokenize).apply(lemmatize).apply(remove_stopwords, extra_words=extra_words, exclude_words=exclude_words))
+    # Return the df 
+    return df
 
 
