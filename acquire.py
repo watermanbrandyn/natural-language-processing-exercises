@@ -2,6 +2,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from requests import get
 
 ## Blog Articles
 
@@ -9,8 +10,8 @@ def get_blog_article_urls():
     '''
     This function makes a request to the Codeup blog site and gathers the urls by analyzing the returned html text. Returns the list of urls.
     '''
-    headers = {User-Agent: 'Codeup Data Science'}
-    response = requests.get('https://codeup.com/blog/', headers=headers)
+    headers = {'User-Agent': 'Codeup Data Science'}
+    response = requests.get('https://codeup.com/blog/', headers= headers)
     soup = BeautifulSoup(response.text)
     # Getting the url by the a class subcategory 'more-link'
     urls = [a.attrs['href'] for a in soup.select('a.more-link')]
@@ -35,9 +36,10 @@ def get_blog_articles():
     '''
     urls = get_blog_article_urls()
     articles = []
+    headers = {'User-Agent': 'Codeup Data Science'}
 
     for url in urls:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers= headers)
         soup = BeautifulSoup(response.text)
         articles.append(parse_blog_article(soup))
 
@@ -72,3 +74,18 @@ def parse_inshorts_page(category):
     soup = BeautifulSoup(response.text)
     articles = [parse_news_card(card, category) for card in soup.select('.news-card')]
     return articles
+
+
+def parse_news_card(card, category):
+    '''
+    Take in a news card and return a dictionary.
+    '''
+    output = {}
+    output['category'] = category
+    output['title'] = card.select_one('a.clickable').text.strip()
+    card_content = card.select_one('div.news-card-content')
+    output['content'] = card_content.select_one('div').text
+    output['author'] = card_content.select_one('.author').text
+    output['published'] = card_content.select_one('.time').attrs['content']
+    
+    return output
